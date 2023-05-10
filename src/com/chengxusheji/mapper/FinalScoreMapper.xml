@@ -1,0 +1,51 @@
+<!DOCTYPE mapper  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--namespace命名空间，为了对sql语句进行隔离，方便管理，mapper开发dao方式，使用namespace有特殊作用  
+mapper代理开发时将namespace指定为mapper接口的全限定名  
+ -->
+<mapper namespace="com.chengxusheji.mapper.FinalScoreMapper"> 
+<!--在mapper.xml文件中配置很多的sql语句，执行每个sql语句时，封装为MappedStatement对象 
+mapper.xml以statement为单位管理sql语句  
+ -->
+	<!-- 添加综合成绩记录 -->
+	<insert id="addFinalScore" parameterType="finalScore">
+		insert into t_finalScore(studentObj,colleageObj,classObj,courseFinalScore,finalAddScore,finalScore) values 
+		(#{studentObj.studentNumber},#{colleageObj.colleageNumber},#{classObj.classNumber},#{courseFinalScore},#{finalAddScore},#{finalScore})
+	</insert>
+
+	<!-- 按照查询条件分页查询综合成绩记录 -->
+	<select id="queryFinalScore" resultMap="finalScoreMap" >
+		select t_finalScore.* from t_finalScore,t_classInfo,t_colleage,t_student ${where} and t_finalScore.studentObj = t_student.studentNumber and t_finalScore.colleageObj = t_colleage.colleageNumber and t_finalScore.classObj = t_classInfo.classNumber limit #{startIndex},#{pageSize}
+	</select>
+	<resultMap id="finalScoreMap" type="finalScore">
+        <id property="scoreId" column="scoreId" />
+        <association property="studentObj" column="studentObj" select="com.chengxusheji.mapper.StudentMapper.getStudent" />
+        <association property="colleageObj" column="colleageObj" select="com.chengxusheji.mapper.ColleageMapper.getColleage" />
+        <association property="classObj" column="classObj" select="com.chengxusheji.mapper.ClassInfoMapper.getClassInfo" />
+    </resultMap>
+
+    <!-- 按照查询条件查询所有综合成绩记录 -->
+	<select id="queryFinalScoreList" resultMap="finalScoreMap" >
+		select t_finalScore.* from t_finalScore,t_classInfo,t_colleage,t_student ${where} and t_finalScore.studentObj = t_student.studentNumber and t_finalScore.colleageObj = t_colleage.colleageNumber and t_finalScore.classObj = t_classInfo.classNumber
+	</select>
+
+    <!-- 按照查询条件的综合成绩记录数 -->
+	<select id="queryFinalScoreCount" resultType="int">
+		select count(*) from t_finalScore,t_classInfo,t_colleage,t_student ${where} and t_finalScore.studentObj = t_student.studentNumber and t_finalScore.colleageObj = t_colleage.colleageNumber and t_finalScore.classObj = t_classInfo.classNumber
+	</select>
+
+	<!-- 根据主键查询某个综合成绩记录 -->
+	<select id="getFinalScore" parameterType="int" resultMap="finalScoreMap">
+		select * from t_finalScore where t_finalScore.scoreId = #{scoreId}
+	</select>
+
+	<!-- 更新综合成绩记录 -->
+	<update id="updateFinalScore" parameterType="finalScore">
+		update t_finalScore set studentObj=#{studentObj.studentNumber},colleageObj=#{colleageObj.colleageNumber},classObj=#{classObj.classNumber},courseFinalScore=#{courseFinalScore},finalAddScore=#{finalAddScore},finalScore=#{finalScore} where scoreId = #{scoreId}
+	</update>
+
+	<!-- 删除综合成绩记录 -->
+	<delete id="deleteFinalScore" parameterType="int">
+		delete from t_finalScore where scoreId=#{scoreId}
+	</delete>
+
+</mapper>

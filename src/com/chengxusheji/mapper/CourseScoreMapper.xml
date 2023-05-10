@@ -1,0 +1,50 @@
+<!DOCTYPE mapper  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--namespace命名空间，为了对sql语句进行隔离，方便管理，mapper开发dao方式，使用namespace有特殊作用  
+mapper代理开发时将namespace指定为mapper接口的全限定名  
+ -->
+<mapper namespace="com.chengxusheji.mapper.CourseScoreMapper"> 
+<!--在mapper.xml文件中配置很多的sql语句，执行每个sql语句时，封装为MappedStatement对象 
+mapper.xml以statement为单位管理sql语句  
+ -->
+	<!-- 添加课程成绩记录 -->
+	<insert id="addCourseScore" parameterType="courseScore">
+		insert into t_courseScore(studentObj,courseObj,score) values 
+		(#{studentObj.studentNumber},#{courseObj.courseNo},#{score})
+	</insert>
+
+	<!-- 按照查询条件分页查询课程成绩记录 -->
+	<select id="queryCourseScore" resultMap="courseScoreMap" >
+		select t_courseScore.* from t_courseScore,t_course,t_student ${where} and t_courseScore.studentObj = t_student.studentNumber and t_courseScore.courseObj = t_course.courseNo limit #{startIndex},#{pageSize}
+	</select>
+	<resultMap id="courseScoreMap" type="courseScore">
+        <id property="scoreId" column="scoreId" />
+        <association property="studentObj" column="studentObj" select="com.chengxusheji.mapper.StudentMapper.getStudent" />
+        <association property="courseObj" column="courseObj" select="com.chengxusheji.mapper.CourseMapper.getCourse" />
+    </resultMap>
+
+    <!-- 按照查询条件查询所有课程成绩记录 -->
+	<select id="queryCourseScoreList" resultMap="courseScoreMap" >
+		select t_courseScore.* from t_courseScore,t_course,t_student ${where} and t_courseScore.studentObj = t_student.studentNumber and t_courseScore.courseObj = t_course.courseNo
+	</select>
+
+    <!-- 按照查询条件的课程成绩记录数 -->
+	<select id="queryCourseScoreCount" resultType="int">
+		select count(*) from t_courseScore,t_course,t_student ${where} and t_courseScore.studentObj = t_student.studentNumber and t_courseScore.courseObj = t_course.courseNo
+	</select>
+
+	<!-- 根据主键查询某个课程成绩记录 -->
+	<select id="getCourseScore" parameterType="int" resultMap="courseScoreMap">
+		select * from t_courseScore where t_courseScore.scoreId = #{scoreId}
+	</select>
+
+	<!-- 更新课程成绩记录 -->
+	<update id="updateCourseScore" parameterType="courseScore">
+		update t_courseScore set studentObj=#{studentObj.studentNumber},courseObj=#{courseObj.courseNo},score=#{score} where scoreId = #{scoreId}
+	</update>
+
+	<!-- 删除课程成绩记录 -->
+	<delete id="deleteCourseScore" parameterType="int">
+		delete from t_courseScore where scoreId=#{scoreId}
+	</delete>
+
+</mapper>
